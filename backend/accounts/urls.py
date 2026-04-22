@@ -1,13 +1,13 @@
 from django.urls import path,include
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
-from .views import ProductsView, RegisterView, LoginView
+from .views import ProductsViewSet, RegisterView, LoginView
 from .views import RegisterView, LoginView
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import PasswordResetRequestView, PasswordResetConfirmView, ProfileView
 
 router = DefaultRouter()
-router.register(r'products', ProductsView, basename='products')
+router.register(r'products', ProductsViewSet, basename='products') 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),

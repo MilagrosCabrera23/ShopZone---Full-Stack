@@ -84,7 +84,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Si necesitas permitir credenciales (cookies, auth headers)
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'backend.urls'
 

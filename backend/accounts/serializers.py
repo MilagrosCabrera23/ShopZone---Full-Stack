@@ -13,7 +13,26 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     """Serializer para registrar un nuevo usuario, incluye el campo de contraseña."""
     password = serializers.CharField(write_only=True)
-    email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all())], message="Este correo electrónico ya posee una cuenta registrada.¿Olvidaste tu contraseña?", code="email_exists")
+    email = serializers.EmailField(
+        required=True,
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="Este correo electrónico ya posee una cuenta registrada.¿Olvidaste tu contraseña?", 
+                lookup='iexact'
+                )
+        ]
+    )
+    username = serializers.CharField(
+        required=True,
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="Este nombre de usuario ya está en uso. Por favor elige otro.", 
+                lookup='iexact'
+                )
+        ]
+    )
 
     class Meta:
         model = User
