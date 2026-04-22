@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 
+import allauth
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,7 +45,25 @@ INSTALLED_APPS = [
     'encrypted_model_fields',
     'accounts',
     'corsheaders',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
 ]
+AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Configuración de Allauth
+SITE_ID = 1
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -54,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = False
@@ -84,7 +105,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
+REST_USE_JWT = True 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -99,7 +120,10 @@ DATABASES = {
     }
 }
 
-
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_HTTPONLY': False,
+}
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -180,3 +204,12 @@ SIMPLE_JWT = {
 # Encrypted Fields
 ENCRYPTED_FIELD_KEY_DIR = BASE_DIR / 'keys'
 FIELD_ENCRYPTION_KEY = 'MxQLxX-ts7G61oK5hdo5twknFfg-6zAFQyD1-zz5Ass='
+
+# Configuración para django-allauth después del login social
+SOCIALACCOUNT_LOGIN_ON_GET = True # Permite iniciar el flujo con un GET
+LOGIN_REDIRECT_URL = "http://localhost:4200/login-success" # URL a la que Django redirigiría (no la usaremos directamente con DRF)
+ACCOUNT_LOGOUT_REDIRECT_URL = "http://localhost:4200/login"
+
+# Adaptador personalizado para dj-rest-auth
+# Esto es clave para que dj-rest-auth devuelva el token en la redirección
+SOCIALACCOUNT_ADAPTER = 'dj_rest_auth.social_adapters.DefaultSocialAccountAdapter'
