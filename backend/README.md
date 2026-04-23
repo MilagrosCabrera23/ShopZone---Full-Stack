@@ -1,8 +1,16 @@
-# Django Backend API
+#  ShopZone - Backend API (Django REST Framework)
 
-API backend con Django REST Framework + JWT + PostgreSQL.
+Este es el núcleo de servicios para ShopZone, un marketplace de moda y tecnología. La API proporciona un sistema de seguridad robusto, gestión de productos con permisos dinámicos e integración social. API backend con Django REST Framework + JWT + PostgreSQL.
 
 Incluye soporte CORS con django-cors-headers para integración con frontend Angular.
+
+## Características Principales
+- Seguridad JWT: Autenticación basada en JSON Web Tokens (SimpleJWT).
+- Google OAuth2 (RF-02): Login social integrado con dj-rest-auth y allauth.
+- Registro Inteligente (RF-03): Validación de email duplicado con mensajes de negocio personalizados.
+- Catálogo Público (RF-01): Lista de productos accesible para invitados (ReadOnly).
+- Checkout Protegido (RF-01): Acción de compra restringida mediante permisos dinámicos a nivel de ViewSet.
+- Poblamiento de Datos: Script seed.py para carga masiva de productos de prueba.
 
 ## Requisitos
 
@@ -13,96 +21,68 @@ Incluye soporte CORS con django-cors-headers para integración con frontend Angu
 
 ## Instalación rápida
 
-```powershell
-cd d:\ISPC\ProgramacionIII\ISPC-ProgIII
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
+1.  **Clonar el Repositorio**
+    ```bash
+    git clone https://github.com/MilagrosCabrera23/ShopZone---Full-Stack.git
+    cd ShopZone/backend
+    ```
 
-## Configurar PostgreSQL
+2.  **Crear y Activar un Entorno Virtual**
+    ```bash
+    python -m venv venv
+    # En Windows
+    venv\Scripts\activate
+    # En macOS/Linux
+    source venv/bin/activate
+    ```
 
-Edita `backend/settings.py` si tu usuario/password/host/puerto difieren:
+3.  **Instalar Dependencias**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'backend_db',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-```
+4.  **Configurar la Base de Datos**
+    Abre `backend/settings.py` y ajusta la configuración de `DATABASES` para que coincida con tus credenciales de PostgreSQL.
 
-Crea la base de datos si no existe:
+5.  **Aplicar Migraciones**
+    ```bash
+    python manage.py migrate
+    ```
 
-```powershell
-psql -U postgres -c "CREATE DATABASE backend_db;"
-```
+6.  **Poblar la Base de Datos (Opcional)**
+    ```bash
+    python manage.py seed_data
+    ```
+    La contraseña para todos los usuarios de prueba es `password123`.
 
-## Migraciones
+7.  **Iniciar el Servidor**
+    ```bash
+    python manage.py runserver
+    ```
+    El servidor estará disponible en `http://127.0.0.1:8000`.
 
-```powershell
-python manage.py makemigrations
-python manage.py migrate
-```
+## Endpoints de la API
 
-## Ejecutar servidor
+A continuación se listan los endpoints principales. Todos están prefijados con `/api/`.
 
-```powershell
-python manage.py runserver
-```
+### Autenticación
 
-## Endpoints
+*   `POST /register/`: Registro de un nuevo usuario.
+*   `POST /login/`: Inicio de sesión con email y contraseña. Devuelve tokens de acceso y refresco.
+*   `POST /token/refresh/`: Obtiene un nuevo token de acceso usando un token de refresco.
+*   `GET /auth/google/login/`: Inicia el flujo de autenticación con Google (redirección).
 
-### POST `/api/register/`
+### Gestión de Cuentas
 
-Body JSON:
+*   `POST /password-reset/`: Solicita un reseteo de contraseña.
+*   `POST /password-reset/confirm/`: Confirma el reseteo con un OTP y una nueva contraseña.
+*   `GET /profile/`: Obtiene los datos del usuario autenticado.
 
-```json
-{
-  "username": "user1",
-  "email": "user1@example.com",
-  "password": "Testpass123"
-}
-```
+### Productos
 
-Respuesta (201):
-
-```json
-{
-  "username": "user1",
-  "email": "user1@example.com"
-}
-```
-
-### POST `/api/login/`
-
-Body JSON:
-
-```json
-{
-  "username": "user1",
-  "password": "Testpass123"
-}
-```
-
-Respuesta (200):
-
-```json
-{
-  "refresh": "...",
-  "access": "...",
-  "user": {
-    "id": 1,
-    "username": "user1",
-    "email": "user1@example.com"
-  }
-}
-```
+*   `GET /products/`: Lista todos los productos. (Acceso público)
+*   `GET /products/{id}/`: Obtiene los detalles de un producto. (Acceso público)
+*   `POST /products/{id}/checkout/`: Realiza una compra simulada del producto. (Requiere autenticación)
 
 ### Autenticación en APIs protegidas
 
